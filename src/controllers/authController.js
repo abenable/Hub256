@@ -10,6 +10,7 @@ import logger from '../utils/logger.js';
 // Middleware to protect routes - checks if the user is authenticated
 export const protect = async (req, res, next) => {
   try {
+    logger.info('Protect middleware invoked');
     let token;
     // Check if the authorization header contains a Bearer token
     if (
@@ -54,7 +55,7 @@ export const protect = async (req, res, next) => {
     req.user = currUser;
     next();
   } catch (error) {
-    logger.error(error);
+    logger.error(`Protect middleware error: ${error}`);
     next(new ApiError(500, error.message));
   }
 };
@@ -62,6 +63,7 @@ export const protect = async (req, res, next) => {
 // Middleware to restrict access based on user roles
 export const restrictTo = (...roles) => {
   return (req, res, next) => {
+    logger.info(`RestrictTo middleware invoked with roles: ${roles}`);
     if (!roles.includes(req.user.role)) {
       // If user's role is not allowed, return forbidden error
       return next(
@@ -75,6 +77,7 @@ export const restrictTo = (...roles) => {
 // Handler for forgot password request
 export const forgotpassword = async (req, res, next) => {
   try {
+    logger.info(`Forgot password handler invoked for email: ${req.body.email}`);
     // Get user by email
     const user = await UserModel.findOne({ email: req.body.email });
     if (!user) {
@@ -91,7 +94,7 @@ export const forgotpassword = async (req, res, next) => {
 
     const message = `Forgot your password? Copy and paste this code\n${resetToken} \nReset your password or Submit a patch request with new password to ${resetURL}\nIf you didnt forget password please ignore this email`;
 
-    const response = await sendMail({
+    await sendMail({
       email: user.email,
       subject: 'Password Reset Token',
       message,
@@ -102,6 +105,7 @@ export const forgotpassword = async (req, res, next) => {
       message: 'Token sent to your email',
     });
   } catch (error) {
+    logger.error(`Forgot password error: ${error}`);
     return next(new ApiError(500, error.message));
   }
 };
@@ -109,6 +113,7 @@ export const forgotpassword = async (req, res, next) => {
 // Handler for resetting user password
 export const resetpassword = async (req, res, next) => {
   try {
+    logger.info('Reset password handler invoked');
     const hashedtoken = crypto
       .createHash('sha256')
       .update(req.body.token)
@@ -130,6 +135,7 @@ export const resetpassword = async (req, res, next) => {
       UserId: user._id,
     });
   } catch (error) {
+    logger.error(`Reset password error: ${error}`);
     return next(new ApiError(500, error.message));
   }
 };
@@ -137,6 +143,7 @@ export const resetpassword = async (req, res, next) => {
 // Handler for updating user password
 export const updatepassword = async (req, res, next) => {
   try {
+    logger.info('Update password handler invoked');
     const { oldpassword, newpassword } = req.body;
     const user = await UserModel.findById(req.user.id).select('+password');
     logger.log(req.body);
@@ -161,10 +168,10 @@ export const updatepassword = async (req, res, next) => {
       })
       .json({
         message: 'Password successfully updated.',
-        token,
+        access_token,
       });
   } catch (error) {
-    logger.log(error);
+    logger.log(`Update password error: ${error}`);
     next(new ApiError(500, error.message));
   }
 };
@@ -172,6 +179,7 @@ export const updatepassword = async (req, res, next) => {
 // Handler for user registration
 export const Register = async (req, res, next) => {
   try {
+    logger.info('Register handler invoked');
     const { firstName, lastName, email, password } = req.body;
 
     const checkemail = await UserModel.findOne({ email });
@@ -204,7 +212,7 @@ export const Register = async (req, res, next) => {
         access_token,
       });
   } catch (error) {
-    logger.error(error);
+    logger.error(`Register error: ${error}`);
     next(new ApiError(500, error.message));
   }
 };
@@ -212,6 +220,7 @@ export const Register = async (req, res, next) => {
 // Handler for admin user registration
 export const AdminRegister = async (req, res, next) => {
   try {
+    logger.info('Admin register handler invoked');
     const { username, email, password } = req.body;
 
     const checkemail = await UserModel.findOne({ email });
@@ -244,7 +253,7 @@ export const AdminRegister = async (req, res, next) => {
         access_token,
       });
   } catch (error) {
-    logger.error(error);
+    logger.error(`Admin register error: ${error}`);
     next(new ApiError(500, error.message));
   }
 };
@@ -252,6 +261,7 @@ export const AdminRegister = async (req, res, next) => {
 // Handler for user login
 export const Login = async (req, res, next) => {
   try {
+    logger.info('Login handler invoked');
     const { email, password } = req.body;
     const user = await UserModel.findOne({ email }).select('+password');
     if (!user) {
@@ -280,6 +290,7 @@ export const Login = async (req, res, next) => {
         user,
       });
   } catch (error) {
+    logger.error(`Login error: ${error}`);
     return next(new ApiError(500, error.message));
   }
 };
