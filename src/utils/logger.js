@@ -3,25 +3,23 @@ import {
   format as _format,
   transports as _transports,
 } from 'winston';
+import winstonTimestampColorize from 'winston-timestamp-colorize';
+import moment from 'moment';
+
+const { combine, timestamp, colorize, printf, splat } = _format;
 
 const logger = createLogger({
-  level: 'silly',
-  format: _format.json(),
-  transports: [
-    new _transports.File({ filename: 'error.log', level: 'error' }),
-    new _transports.File({ filename: 'combined.log' }),
-  ],
+  format: combine(
+    splat(),
+    timestamp({
+      format: () => moment.utc().format('YYYY-MM-DD HH:mm:ss') + ' UTC',
+    }),
+    colorize(),
+    winstonTimestampColorize({ color: 'cyan' }),
+    printf((info) => `${info.timestamp} ${info.level}: ${info.message}`)
+  ),
+  level: 'debug',
+  transports: [new _transports.Console({})],
 });
-
-if (process.env.NODE_ENV !== 'production') {
-  logger.add(
-    new _transports.Console({
-      format: _format.combine(
-        _format.colorize(), // This will colorize the output based on the log level
-        _format.simple()
-      ),
-    })
-  );
-}
 
 export default logger;
