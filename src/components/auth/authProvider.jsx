@@ -20,7 +20,7 @@ export function AuthProvider({ children }) {
     setIsAuthenticated(token);
 
     if (!token) {
-      navigate('/');
+      navigate('/login');
     }
   }, [navigate]);
 
