@@ -1,6 +1,4 @@
 import express from 'express';
-import axios from 'axios';
-
 import { ApiError } from '../controllers/errorController.js';
 import { BlogModel } from '../models/blogs.js';
 import { protect, restrictTo } from '../controllers/authController.js';
@@ -9,8 +7,7 @@ import logger from '../utils/logger.js';
 const router = express.Router();
 
 router.post('/post', protect, async (req, res, next) => {
-  const { title, url, description, urlToImg, content, category, publishedAt } =
-    req.body;
+  const { title, description, urlToImg, content, category } = req.body;
   try {
     const blog = await BlogModel.create({
       title,
@@ -20,6 +17,8 @@ router.post('/post', protect, async (req, res, next) => {
       urlToImg,
       author: req.user.id,
     });
+
+    logger.info('Blog created successfully:', blog);
 
     res.status(201).json({
       status: 'success',
@@ -35,6 +34,8 @@ router.post('/post', protect, async (req, res, next) => {
 router.get('/all', async (req, res, next) => {
   try {
     const blogs = await BlogModel.find();
+    logger.info('Retrieved all blogs:', blogs);
+
     res.status(200).json(blogs);
   } catch (error) {
     logger.error(error);
@@ -45,6 +46,11 @@ router.get('/all', async (req, res, next) => {
 router.get('/category/:category', async (req, res, next) => {
   try {
     const blogs = await BlogModel.find({ category: req.params.category });
+    logger.info(
+      `Retrieved blogs for category "${req.params.category}":`,
+      blogs
+    );
+
     res.status(200).json(blogs);
   } catch (error) {
     logger.error(error);
@@ -56,11 +62,15 @@ router.get('/id/:id', async (req, res, next) => {
   try {
     const blog = await BlogModel.findById(req.params.id);
     if (!blog) {
+      logger.info(`Blog with ID "${req.params.id}" not found.`);
       return res.status(404).json({
         status: 'Failed',
         message: 'Blog not found.',
       });
     }
+
+    logger.info('Retrieved blog by ID:', blog);
+
     res.status(200).json(blog);
   } catch (error) {
     logger.error(error);
@@ -73,6 +83,9 @@ router.get('/search', async (req, res, next) => {
     const blogs = await BlogModel.find({
       $text: { $search: req.params.query },
     });
+
+    logger.info('Retrieved blogs by search query:', blogs);
+
     res.status(200).json({ blogs });
   } catch (error) {
     logger.error(error);
@@ -85,8 +98,12 @@ router.get('/latest', async (req, res) => {
     const latestPosts = await BlogModel.find()
       .sort({ publishedAt: -1 })
       .limit(2);
+
+    logger.info('Retrieved latest posts:', latestPosts);
+
     res.json(latestPosts);
   } catch (error) {
+    logger.error(error);
     res.status(500).json({ error: 'Could not retrieve latest posts.' });
   }
 });
@@ -96,6 +113,9 @@ router.get('/recommended', async (req, res, next) => {
     const recommendedPost = await BlogModel.findOne({
       recommendedByEditor: true,
     });
+
+    logger.info('Retrieved recommended post:', recommendedPost);
+
     res.json(recommendedPost);
   } catch (error) {
     logger.error(error);
@@ -107,6 +127,7 @@ router.delete('/delete/:id', protect, async (req, res, next) => {
   try {
     const blog = await BlogModel.findById(req.params.id);
     if (!blog) {
+      logger.info(`Blog with ID "${req.params.id}" not found.`);
       res.status(404).json({
         status: 'Failed',
         message: 'Blog not found..',
@@ -114,11 +135,15 @@ router.delete('/delete/:id', protect, async (req, res, next) => {
     }
     if (req.user.id == blog.author.id || req.user.role == 'admin') {
       const response = await BlogModel.findByIdAndDelete(blog.id);
+
+      logger.info('Deleted blog:', response);
+
       res.status(200).json({
         status: 'success',
         message: response,
       });
     } else {
+      logger.info('User is not allowed to perform this action.');
       return res.status(403).json({
         status: 'Failed',
         message: 'You are not allowed to perform this action.',
@@ -133,49 +158,14 @@ router.delete('/delete/:id', protect, async (req, res, next) => {
 router.delete('/del-all', protect, restrictTo('admin'), async (req, res) => {
   try {
     const blogs = await BlogModel.deleteMany();
+
+    logger.info('Deleted all blogs:', blogs);
+
     res.status(200).json({ blogs });
   } catch (error) {
     logger.error(error);
   }
 });
-
-router.post(
-  '/addposts',
-  protect,
-  restrictTo('admin'),
-  async (req, res, next) => {
-    try {
-      const url = `https://newsapi.org/v2/everything?q=${req.body.query}&from=2024-02-29&to=2024-03-03&sortBy=publishedAt&apiKey=${process.env.NEWSAPI_KEY}&language=en`;
-
-      const response = await axios.get(url);
-
-      const top15 = response.data.articles.slice(0, 15);
-      // how can i pick the first 15 of response.data.articles
-
-      const blogs = top15.map(async (blog) => {
-        await BlogModel.create({
-          title: blog.title,
-          url: blog.url,
-          description: blog.description,
-          urlToImage: blog.urlToImage,
-          content: blog.content,
-          category: req.body.query,
-          publishedAt: blog.publishedAt,
-          author: req.user.id,
-        });
-      });
-
-      res.status(201).json({
-        status: 'success',
-        Stories: response.data.articles,
-        message: 'Blogs created successfully.',
-      });
-    } catch (error) {
-      logger.error(error);
-      next(new ApiError(500, 'internal server error'));
-    }
-  }
-);
 
 router.all('*', (req, res, next) => {
   next(
