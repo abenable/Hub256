@@ -9,7 +9,7 @@ class ApiError extends Error {
   }
 }
 
-const ErrorHandler = (err, req, res) => {
+const ErrorHandler = (err, req, res, next) => {
   let statusCode = err.statusCode || 500; // Internal Server Error code.
   let message = err.message || 'Internal Server Error';
   let details = err.details;
