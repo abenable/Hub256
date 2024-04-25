@@ -41,6 +41,17 @@ app.use(cookieParser());
 //Set various HTTP headers to enhance security
 
 app.use(helmet());
+app.use(
+  helmet.contentSecurityPolicy({
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "'unsafe-inline'"],
+      imgSrc: ["'self'", 'data:', 'https://newvision-media.s3.amazonaws.com'],
+      styleSrc: ["'self'", "'unsafe-inline'"],
+      connectSrc: ["'self'", 'https://api.hub256.live'],
+    },
+  })
+);
 
 /**
  * Limit repeated requests to prevent abuse
