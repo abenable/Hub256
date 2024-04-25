@@ -7,7 +7,7 @@ import cookieParser from 'cookie-parser';
 import helmet from 'helmet';
 import mongoSanitize from 'express-mongo-sanitize';
 import hpp from 'hpp';
-import { ApiError, ErrorHandler } from './controllers/errorController.js';
+import { ErrorHandler } from './controllers/errorController.js';
 import { authRouter } from './routes/authRoutes.js';
 import { getDirname, limiter } from './utils/util.js';
 import { userRouter } from './routes/userRoutes.js';
