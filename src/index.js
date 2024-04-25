@@ -90,9 +90,9 @@ app.get('/', (req, res) => {
  * @returns {Function} - The next middleware function with an error object
  */
 
-app.all('*', (req, res, next) => {
-  next(new ApiError(`Can't find ${req.originalUrl} on this server!`, 404));
-});
+// app.all('*', (req, res, next) => {
+//   next(new ApiError(`Can't find ${req.originalUrl} on this server!`, 404));
+// });
 
 // Error handling middleware
 app.use(ErrorHandler);
