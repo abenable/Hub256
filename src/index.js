@@ -46,7 +46,7 @@ app.use(
     directives: {
       defaultSrc: ["'self'"],
       scriptSrc: ["'self'", "'unsafe-inline'"],
-      imgSrc: ["'self'", 'data:', 'https://newvision-media.s3.amazonaws.com'],
+      imgSrc: ["'self'", 'data:', '*'],
       styleSrc: ["'self'", "'unsafe-inline'"],
       connectSrc: ["'self'", 'https://api.hub256.live'],
     },
