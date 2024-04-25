@@ -211,6 +211,9 @@ export const Register = async (req, res, next) => {
         User: newUser,
         access_token,
       });
+    logger.info(
+      `User ${newUser.username.toUpperCase()} registered successfully.`
+    );
   } catch (error) {
     logger.error(`Register error: ${error}`);
     next(new ApiError(500, error.message));
@@ -229,15 +232,15 @@ export const AdminRegister = async (req, res, next) => {
         new ApiError(401, 'Email already taken. Use a different one.')
       );
     }
-    const newUser = new UserModel({
+    const newAdmin = new UserModel({
       username,
       email,
       role: 'admin',
       password,
     });
-    await newUser.save();
+    await newAdmin.save();
 
-    const access_token = signToken(newUser._id);
+    const access_token = signToken(newAdmin._id);
 
     res
       .status(201)
@@ -249,9 +252,12 @@ export const AdminRegister = async (req, res, next) => {
       .json({
         status: 'success',
         message: 'User registered successfully.',
-        User: newUser,
+        User: newAdmin,
         access_token,
       });
+    logger.info(
+      `Admin ${newAdmin.username.toUpperCase()} registered successfully.`
+    );
   } catch (error) {
     logger.error(`Admin register error: ${error}`);
     next(new ApiError(500, error.message));
@@ -276,6 +282,9 @@ export const Login = async (req, res, next) => {
     //Sign the jwt token for the user..
     const access_token = signToken(user._id);
 
+    user.isAuthenticated = true;
+    await user.save();
+
     res
       .status(200)
       .cookie('jwt', access_token, {
@@ -286,11 +295,80 @@ export const Login = async (req, res, next) => {
       .json({
         status: 'success',
         message: `Logged in as ${user.username.toUpperCase()}`,
-        access_token,
         user,
       });
+    logger.info(`User ${user.username.toUpperCase()} logged in successfully.`);
   } catch (error) {
     logger.error(`Login error: ${error}`);
     return next(new ApiError(500, error.message));
+  }
+};
+
+// Handler for user logout
+export const Logout = async (req, res, next) => {
+  try {
+    logger.info('Logout handler invoked');
+    res
+      .status(200)
+      .cookie('jwt', 'loggedout', {
+        expires: new Date(Date.now() + 1 * 1000),
+        httpOnly: true,
+        secure: true,
+      })
+      .json({ status: 'success', message: 'Logged out successfully.' });
+  } catch (error) {
+    logger.error(`Logout error: ${error}`);
+    return next(new ApiError(500, error.message));
+  }
+};
+
+// Handler for checking user authentication status
+export const CheckAuth = async (req, res, next) => {
+  try {
+    logger.info('Check authentication invoked');
+    let token;
+    // Check if the authorization header contains a Bearer token
+    if (
+      req.headers.authorization &&
+      req.headers.authorization.startsWith('Bearer')
+    ) {
+      token = req.headers.authorization.split(' ')[1];
+    } else if (req.cookies) {
+      // If no Bearer token, check for token in cookies
+      token = req.cookies.jwt;
+    }
+
+    if (!token) {
+      // If no token found, return unauthorized error
+      return next(
+        new ApiError(
+          401,
+          'You are not logged in. Please log in to get access...'
+        )
+      );
+    }
+
+    // Verify the JWT token
+    const decoded = await promisify(jwt.verify)(
+      token,
+      process.env.JWT_PRIVATE_KEY
+    );
+
+    // Find the user based on the decoded ID from the token
+    const currUser = await UserModel.findById(decoded.id).select('+password');
+    if (!currUser) {
+      // If user not found, return unauthorized error
+      return next(new ApiError(401, 'Token no longer exists...'));
+    }
+
+    // Check if user changed their password after the token was issued
+    if (currUser.changedPassAfter(decoded.iat)) {
+      return next(new ApiError(401, 'Password changed. Log in again...'));
+    }
+
+    res.status(200).json({ status: 'success', isAuthenticated: true });
+  } catch (error) {
+    logger.error(`Check authentication error: ${error}`);
+    next(new ApiError(500, error.message));
   }
 };
