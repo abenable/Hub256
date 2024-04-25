@@ -1,5 +1,4 @@
 import { createContext, useState, useEffect, useContext } from 'react';
-import { useNavigate } from 'react-router-dom';
 
 // Create a context for the authentication status
 const AuthContext = createContext();
@@ -18,7 +17,6 @@ export function AuthProvider({ children }) {
       ? import.meta.env.VITE_LOCAL_URL
       : import.meta.env.VITE_URL;
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const navigate = useNavigate();
 
   useEffect(() => {
     (async () => {
@@ -34,11 +32,8 @@ export function AuthProvider({ children }) {
       } catch (error) {
         setIsAuthenticated(false);
       }
-      if (!isAuthenticated) {
-        navigate('/login');
-      }
     })();
-  }, [navigate]);
+  }, []);
 
   return (
     <AuthContext.Provider value={isAuthenticated}>
