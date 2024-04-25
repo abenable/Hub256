@@ -2,16 +2,16 @@ import './App.css';
 import { Route, Routes } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { Button } from '@material-tailwind/react';
-import CreatePost from '../pages/createPost/createPost';
-import { Register } from '../pages/register/register';
+import CreatePost from './pages/createPost/createPost';
+import { Register } from './pages/register/register';
 import Navbar from './components/navbar/navbar2.0';
-import BlogPage from '../pages/blogPage/blogPage';
-import { Login } from '../pages/login/login';
+import BlogPage from './pages/blogPage/blogPage';
+import { Login } from './pages/login/login';
 import Footer from './components/footer/footer';
 import { ProtectedRoute } from './components/protectedRoute/protectedRoute';
 import { AuthProvider } from './components/auth/authProvider';
-import IndexPage from '../pages/index';
-import Blogs from '../pages/blogs/blogs';
+import IndexPage from './pages/index';
+import Blogs from './pages/blogs/blogs';
 
 function App() {
   const [isVisible, setIsVisible] = useState(false);
