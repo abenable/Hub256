@@ -78,22 +78,17 @@ router.patch('/unsubscribe', async (req, res, next) => {
   }
 });
 
-router.get(
-  '/subscribers',
-  protect,
-  restrictTo('admin'),
-  async (req, res, next) => {
-    try {
-      const subscribers = await SubscriberModel.find({ active: true });
-      const emails = subscribers.map((item) => item.email);
-      logger.info('Retrieved subscribers');
-      res.status(200).json(emails);
-    } catch (error) {
-      logger.error(error);
-      next(new ApiError(500, 'internal server error'));
-    }
+router.get('/subscribers', async (req, res, next) => {
+  try {
+    const subscribers = await SubscriberModel.find({ active: true });
+    const emails = subscribers.map((item) => item.email);
+    logger.info('Retrieved subscribers');
+    res.status(200).json(emails);
+  } catch (error) {
+    logger.error(error);
+    next(new ApiError(500, 'internal server error'));
   }
-);
+});
 
 router.all('*', (req, res, next) => {
   logger.warn(`Route not found: ${req.originalUrl}`);
