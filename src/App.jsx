@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { Button } from '@material-tailwind/react';
 import CreatePost from './pages/createPost/createPost';
 import { Register } from './pages/register/register';
-import Navbar from './components/navbar/navbar2.0';
+import Navbar from './components/navbar/navbar';
 import BlogPage from './pages/blogPage/blogPage';
 import { Login } from './pages/login/login';
 import Footer from './components/footer/footer';
