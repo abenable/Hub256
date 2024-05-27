@@ -29,9 +29,8 @@ export function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      console.log(formData);
       const response = await axios.post(`${API_URL}/auth/login`, formData);
-      console.log(response.data);
+      console.log(response.status);
       navigate('/');
     } catch (error) {
       console.error(error);
