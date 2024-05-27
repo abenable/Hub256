@@ -26,8 +26,10 @@ export function AuthProvider({ children }) {
         });
         if (res.status === 200) {
           setIsAuthenticated(true);
+          console.log('Authenticated');
         } else {
           setIsAuthenticated(false);
+          console.log('Authenticated');
         }
       } catch (error) {
         setIsAuthenticated(false);
