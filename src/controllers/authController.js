@@ -340,12 +340,9 @@ export const CheckAuth = async (req, res, next) => {
 
     if (!token) {
       // If no token found, return unauthorized error
-      return next(
-        new ApiError(
-          401,
-          'You are not logged in. Please log in to get access...'
-        )
-      );
+      return logger.error(
+        'You are not logged in. Please log in to get access...'
+      )
     }
 
     // Verify the JWT token
