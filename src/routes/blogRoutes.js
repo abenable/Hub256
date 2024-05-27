@@ -97,7 +97,7 @@ router.get('/latest', async (req, res) => {
   try {
     const latestPosts = await BlogModel.find()
       .sort({ publishedAt: -1 })
-      .limit(2);
+      .limit(3);
 
     logger.info('Retrieved latest posts:', latestPosts);
 
