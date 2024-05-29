@@ -8,12 +8,13 @@ import Navbar from './components/navbar/navbar';
 import BlogPage from './pages/blogPage/blogPage';
 import { Login } from './pages/login/login';
 import Footer from './components/footer/footer';
-import { ProtectedRoute } from './components/protectedRoute/protectedRoute';
 import IndexPage from './pages/index';
 import Blogs from './pages/blogs/blogs';
+import { useAuth } from './components/auth/authProvider';
 
 function App() {
   const [isVisible, setIsVisible] = useState(false);
+  const { isAuthenticated, setAuthStatus } = useAuth();
 
   // Show button when page is scrolled upto given distance
   const toggleVisibility = () => {
@@ -41,39 +42,18 @@ function App() {
     <div className="App mx-4">
       <Navbar />
       <Routes>
-        <Route
-          path="/"
-          element={
-            <ProtectedRoute>
-              <IndexPage />
-            </ProtectedRoute>
-          }
-        />
-        <Route path="register" element={<Register />} />
+        {' '}
+        <Route path="/" element={isAuthenticated ? <IndexPage /> : <Login />} />
         <Route
           path="newpost"
-          element={
-            <ProtectedRoute>
-              <CreatePost />
-            </ProtectedRoute>
-          }
+          element={isAuthenticated ? <CreatePost /> : <Login />}
         />
-        <Route
-          path="blogs"
-          element={
-            <ProtectedRoute>
-              <Blogs />
-            </ProtectedRoute>
-          }
-        />
+        <Route path="blogs" element={isAuthenticated ? <Blogs /> : <Login />} />
+        <Route path="register" element={<Register />} />
         <Route path="login" element={<Login />} />
         <Route
           path="blog/id/:postId"
-          element={
-            <ProtectedRoute>
-              <BlogPage />
-            </ProtectedRoute>
-          }
+          element={isAuthenticated ? <BlogPage /> : <Login />}
         />
       </Routes>{' '}
       <Footer />
