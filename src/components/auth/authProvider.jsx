@@ -13,31 +13,10 @@ AuthProvider.propTypes = {
 export function AuthProvider({ children }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-<<<<<<< HEAD
-  useEffect(() => {
-    (async () => {
-      try {
-        const res = await axios.get(`${API_URL}/auth/checkauth`, {
-          withCredentials: true,
-        });
-        if (res.status === 200) {
-          setIsAuthenticated(true);
-          console.log('Authenticated');
-        } else {
-          setIsAuthenticated(false);
-          console.log('Authenticated');
-        }
-      } catch (error) {
-        setIsAuthenticated(false);
-      }
-    })();
-  }, []);
-=======
   // Function to change the authentication status
   const setAuthStatus = (status) => {
     setIsAuthenticated(status);
   };
->>>>>>> e42cb42 (refactor: Update AuthProvider to use useContext instead of useState for authentication status)
 
   return (
     <AuthContext.Provider value={{ isAuthenticated, setAuthStatus }}>
