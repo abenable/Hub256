@@ -1,18 +1,9 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import image from './logo.jpg';
 import { Link } from 'react-router-dom';
-import AlertComp from '../alert/alertComp';
 
 const Navbar = () => {
-  const [open, setOpen] = React.useState(false);
-  const [sub, setSub] = React.useState();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const handleOpen = () => setOpen((cur) => !cur);
-
-  const API_URL =
-    import.meta.env.MODE === 'development'
-      ? import.meta.env.VITE_LOCAL_URL
-      : import.meta.env.VITE_URL;
 
   const navLinks = [
     { title: 'Home', href: '/' },
@@ -85,7 +76,6 @@ const Navbar = () => {
           </div>
         </nav>
       </nav>
-      {sub ? <AlertComp message={sub} /> : null}
     </>
   );
 };

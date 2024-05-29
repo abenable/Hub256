@@ -10,11 +10,9 @@ import { Login } from './pages/login/login';
 import Footer from './components/footer/footer';
 import IndexPage from './pages/index';
 import Blogs from './pages/blogs/blogs';
-import { useAuth } from './components/auth/authProvider';
 
 function App() {
   const [isVisible, setIsVisible] = useState(false);
-  const { isAuthenticated, setAuthStatus } = useAuth();
 
   // Show button when page is scrolled upto given distance
   const toggleVisibility = () => {
@@ -43,18 +41,12 @@ function App() {
       <Navbar />
       <Routes>
         {' '}
-        <Route path="/" element={isAuthenticated ? <IndexPage /> : <Login />} />
-        <Route
-          path="newpost"
-          element={isAuthenticated ? <CreatePost /> : <Login />}
-        />
-        <Route path="blogs" element={isAuthenticated ? <Blogs /> : <Login />} />
-        <Route path="register" element={<Register />} />
+        <Route path="/" element={<IndexPage />} />
         <Route path="login" element={<Login />} />
-        <Route
-          path="blog/id/:postId"
-          element={isAuthenticated ? <BlogPage /> : <Login />}
-        />
+        <Route path="register" element={<Register />} />
+        <Route path="newpost" element={<CreatePost />} />
+        <Route path="blogs" element={<Blogs />} />
+        <Route path="blog/id/:postId" element={<BlogPage />} />
       </Routes>{' '}
       <Footer />
       {isVisible && (

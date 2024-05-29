@@ -8,7 +8,6 @@ import {
 import axios from 'axios';
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../../components/auth/authProvider';
 
 export function Login() {
   const API_URL =
@@ -18,7 +17,6 @@ export function Login() {
 
   const navigate = useNavigate();
 
-  const { isAuthenticated, setAuthStatus } = useAuth();
   const [formData, setFormData] = useState({
     email: '',
     password: '',
