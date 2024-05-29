@@ -8,6 +8,7 @@ import {
 import axios from 'axios';
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../../components/auth/authProvider';
 
 export function Login() {
   const API_URL =
@@ -17,6 +18,7 @@ export function Login() {
 
   const navigate = useNavigate();
 
+  const { isAuthenticated, setAuthStatus } = useAuth();
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -30,7 +32,7 @@ export function Login() {
     e.preventDefault();
     try {
       const response = await axios.post(`${API_URL}/auth/login`, formData);
-      console.log(response.status);
+      console.log(response.data);
       navigate('/');
     } catch (error) {
       console.error(error);
