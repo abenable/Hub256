@@ -1,23 +1,19 @@
-import { createContext, useState, useEffect, useContext } from 'react';
+import { createContext, useState, useContext } from 'react';
 
 // Create a context for the authentication status
-const AuthContext = createContext();
+export const AuthContext = createContext(false);
 
 // Create a provider component that wraps your app and makes the authentication status available to all components
 import PropTypes from 'prop-types';
-import axios from 'axios';
 
 AuthProvider.propTypes = {
   children: PropTypes.node.isRequired,
 };
 
 export function AuthProvider({ children }) {
-  const API_URL =
-    import.meta.env.MODE === 'development'
-      ? import.meta.env.VITE_LOCAL_URL
-      : import.meta.env.VITE_URL;
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
+<<<<<<< HEAD
   useEffect(() => {
     (async () => {
       try {
@@ -36,9 +32,15 @@ export function AuthProvider({ children }) {
       }
     })();
   }, []);
+=======
+  // Function to change the authentication status
+  const setAuthStatus = (status) => {
+    setIsAuthenticated(status);
+  };
+>>>>>>> e42cb42 (refactor: Update AuthProvider to use useContext instead of useState for authentication status)
 
   return (
-    <AuthContext.Provider value={isAuthenticated}>
+    <AuthContext.Provider value={{ isAuthenticated, setAuthStatus }}>
       {children}
     </AuthContext.Provider>
   );
